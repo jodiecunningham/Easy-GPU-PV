@@ -19,7 +19,7 @@ Param (
 Import-Module $PSSCriptRoot\Add-VMGpuPartitionAdapterFiles.psm1
 
 $VM = Get-VM -VMName $VMName
-$VHD = Get-VHD -VMId $VM.VMId
+$VHD = $VM.HardDrives|where-object { $_.ControllerNumber -eq 0 -and $_.ControllerLocation -eq 0 }
 
 If ($VM.state -eq "Running") {
     [bool]$state_was_running = $true
