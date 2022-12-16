@@ -203,10 +203,76 @@ $XML = @"
     Register-ScheduledTask -XML $XML -TaskName "Install Parsec Virtual Display Driver" | Out-Null
     }
 
-ParsecVDDMonitorSetupScheduledTask
+
+Function Usbmmiddv2SetupScheduledTask {
+$XML = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Install usbmmidd v2</Description>
+    <URI>\Install usbmmidd v2</URI>
+  </RegistrationInfo>
+  <Triggers>
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+      <UserId>$(([System.Security.Principal.WindowsIdentity]::GetCurrent()).Name)</UserId>
+      <Delay>PT2M</Delay>
+    </LogonTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$(([System.Security.Principal.WindowsIdentity]::GetCurrent()).User.Value)</UserId>
+      <LogonType>S4U</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>false</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <IdleSettings>
+      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT72H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>C:\Distrib\Drivers\usbmmidd_v2\usbmmidd.bat</Command>
+    </Exec>
+  </Actions>
+</Task>
+"@
+  
+      try {
+          Get-ScheduledTask -TaskName "Install usbmmidd v2" -ErrorAction Stop | Out-Null
+          Unregister-ScheduledTask -TaskName "Install usbmmidd v2" -Confirm:$false
+          }
+      catch {}
+      $action = New-ScheduledTaskAction -Execute 'C:\Distrib\Drivers\usbmmidd_v2\usbmmidd.bat'
+      $trigger =  New-ScheduledTaskTrigger -AtStartup
+      Register-ScheduledTask -XML $XML -TaskName "Install usbmmidd v2" | Out-Null
+      }
+
+# ParsecVDDMonitorSetupScheduledTask
 VBCableInstallSetupScheduledTask
-ParsecVDDInstallSetupScheduledTask
+# ParsecVDDInstallSetupScheduledTask
+Usbmmiddv2SetupScheduledTask
 
 Start-ScheduledTask -TaskName "Install VB Cable"
-Start-ScheduledTask -TaskName "Install Parsec Virtual Display Driver"
-Start-ScheduledTask -TaskName "Monitor Parsec VDD State"
+# Start-ScheduledTask -TaskName "Install Parsec Virtual Display Driver"
+# Start-ScheduledTask -TaskName "Monitor Parsec VDD State"
+Start-ScheduledTask -TaskName "Install usbmmidd v2"
+
+
+Start-Process -FilePath "C:\Distrib\Software\sunshine-windows.exe" -argumentlist  "/S"
+Start-Process -FilePath "C:\Distrib\Software\qres-setup1090.exe" -argumentlist  "-s"
