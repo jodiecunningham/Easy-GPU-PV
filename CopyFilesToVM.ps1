@@ -10,8 +10,9 @@
     NetworkSwitch = "Default Switch"
     VHDPath = "C:\Users\Public\Documents\Hyper-V\Virtual Hard Disks\"
     UnattendPath = "$PSScriptRoot"+"\autounattend.xml"
+    MergeFolder = "$PSScriptRoot"+"\CopyToRootC\"
     GPUName = "AUTO"
-    GPUResourceAllocationPercentage = 50
+    GPUResourceAllocationPercentage = 25
     Team_ID = ""
     Key = ""
     Username = "GPUVM"
@@ -4344,6 +4345,7 @@ param(
 [string]$VMName,
 [string]$DiskLayout,
 [string]$UnattendPath,
+[string]$MergeFolderPath,
 [int64]$MemoryAmount,
 [int]$CPUCores,
 [string]$NetworkSwitch,
@@ -4367,7 +4369,7 @@ param(
         }
     Modify-AutoUnattend -username "$username" -password "$password" -autologon $autologon -hostname $VMName -UnattendPath $UnattendPath
     $MaxAvailableVersion = (Get-VMHostSupportedVersion).Version | Where-Object {$_.Major -lt 254}| Select-Object -Last 1 
-    Convert-WindowsImage -SourcePath $SourcePath -ISODriveLetter $DriveLetter -Edition $Edition -VHDFormat $Vhdformat -VHDPath $VhdPath -DiskLayout $DiskLayout -UnattendPath $UnattendPath -GPUName $GPUName -Team_ID $Team_ID -Key $Key -SizeBytes $SizeBytes| Out-Null
+    Convert-WindowsImage -SourcePath $SourcePath -ISODriveLetter $DriveLetter -Edition $Edition -VHDFormat $Vhdformat -VHDPath $VhdPath -DiskLayout $DiskLayout -UnattendPath $UnattendPath -MergeFolderPath $MergeFolderPath -GPUName $GPUName -Team_ID $Team_ID -Key $Key -SizeBytes $SizeBytes| Out-Null
     if (Test-Path $vhdPath) {
         New-VM -Name $VMName -MemoryStartupBytes $MemoryAmount -VHDPath $VhdPath -Generation 2 -SwitchName $NetworkSwitch -Version $MaxAvailableVersion | Out-Null
         Set-VM -Name $VMName -ProcessorCount $CPUCores -CheckpointType Disabled -LowMemoryMappedIoSpace 3GB -HighMemoryMappedIoSpace 32GB -GuestControlledCacheTypes $true -AutomaticStopAction ShutDown
@@ -4386,7 +4388,7 @@ param(
         Add-VMDvdDrive -VMName $VMName -Path $SourcePath
         Assign-VMGPUPartitionAdapter -GPUName $GPUName -VMName $VMName -GPUResourceAllocationPercentage $GPUResourceAllocationPercentage
         Write-Host "INFO   : Starting and connecting to VM"
-        vmconnect localhost $VMName
+        # vmconnect localhost $VMName
         }
     else {
     SmartExit -ExitReason "Failed to create VHDX, stopping script"
