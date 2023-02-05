@@ -22,4 +22,4 @@ $VMs|get-vmharddiskdrive|? {$_.Path -like '*$Suffix.vhdx' }|ForEach-Object{
     add-vmharddiskdrive -VMName $_.VMName -Path "$vhdpath\$($_.VMName)$Suffix.vhdx"
 }
 
-.\New-BaseGamingVHD.ps1
+.\New-BaseVHD.ps1
