@@ -1,15 +1,6 @@
-﻿<# 
-If you are opening this file in Powershell ISE you should modify the params section like so...
-Remember: GPU Name must match the name of the GPU you assigned when creating the VM...
-
-Param (
-[string]$VMName = "NameofyourVM",
-[string]$GPUName = "NameofyourGPU",
-[string]$Hostname = $ENV:Computername
-)
-
-#>
-
+﻿function Update-VMGpuPartitionDriver { 
+#requires -Module Hyper-V
+[CmdletBinding()]
 Param (
 [string]$VMName,
 [string]$GPUName,
@@ -50,3 +41,5 @@ If ($state_was_running){
     }
 
 "Done..."
+
+}

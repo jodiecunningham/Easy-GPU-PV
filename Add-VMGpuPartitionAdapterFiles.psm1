@@ -1,4 +1,6 @@
 ﻿Function Add-VMGpuPartitionAdapterFiles {
+#requires -Module Hyper-V
+[CmdletBinding()]
 param(
 [string]$hostname = $ENV:COMPUTERNAME,
 [string]$DriveLetter,
